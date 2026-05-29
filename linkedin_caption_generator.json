@@ -1,0 +1,217 @@
+{
+  "name": "project 1",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        16
+      ],
+      "id": "170a010c-daf7-49e4-b7b5-f1f956a2584d",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0473439d-4b92-4f46-ae94-111a3934da42",
+              "name": "idea",
+              "value": "The future of AI in personalized food recommendations.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        64,
+        32
+      ],
+      "id": "2e611974-49fa-4285-bfa7-01534b28bb02",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "={{ $json.image_prompt }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        688,
+        48
+      ],
+      "id": "54cdc810-a429-4764-96da-f431ec0e47f6",
+      "name": "Generate an image",
+      "credentials": {
+        "openAiApi": {
+          "id": "Uzx9i9cKgctoXGzj",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are a professional social media manager specializing in creating highly engaging, thought-provoking LinkedIn posts based on idea{{ $('Edit Fields').item.json.idea }} . Your posts must be concise, use appropriate professional emojis, and include 3-5 relevant hashtags, also please generate an image prompt as well related to the caption. The tone should be authoritative and inspiring.\nReturn ONLY this JSON object:\n\n{\n  \"image_prompt\": \"\",\n  \"caption\": \"\",\n}\n"
+            },
+            {
+              "content": "=Generate a LinkedIn post based on this core idea: {{ $json.idea }}\n"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        208,
+        32
+      ],
+      "id": "70750261-3586-4c98-8d00-659b80f47c57",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "Uzx9i9cKgctoXGzj",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "person": "czBVWjCdIX",
+        "text": "={{ $('Edit Fields1').item.json.caption }}\n",
+        "shareMediaCategory": "IMAGE",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        912,
+        32
+      ],
+      "id": "22d7007b-76a2-4659-9828-4420aed546da",
+      "name": "Create a post",
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "xGuNOYv2XgmQiG9U",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3f61f671-5cdd-4899-95ac-cfc3b4571274",
+              "name": "caption",
+              "value": "={{ JSON.parse($json.output[0].content[0].text).caption }}",
+              "type": "string"
+            },
+            {
+              "id": "900feb08-7542-4c7a-a38c-fbe7d7337702",
+              "name": "image_prompt",
+              "value": "={{ JSON.parse($json.output[0].content[0].text).image_prompt }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        496,
+        32
+      ],
+      "id": "e0ec8fb7-9363-4081-9ad7-53eff194512d",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "be4abc25-85ad-45c8-87f5-6f9d17b00a88",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a87f74991ec788c48130d6ea6aae599bc03ef36dc7bfa4b4352bde9559a09f0b"
+  },
+  "id": "hoephrXxpWDrQjFH",
+  "tags": []
+}
